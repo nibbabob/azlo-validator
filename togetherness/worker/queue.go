@@ -17,6 +17,30 @@ type WorkerQueue interface {
 	Close() error
 }
 
+// NewWorkerQueue creates a new worker queue based on the queue URL.
+func NewWorkerQueue(queueURL string) WorkerQueue {
+	log.Printf("Creating worker queue for URL: %s", queueURL)
+
+	if strings.HasPrefix(queueURL, "redis://") {
+		// Extract Redis address from URL
+		// Format: redis://host:port
+		redisAddr := strings.TrimPrefix(queueURL, "redis://")
+		if redisAddr == "" {
+			redisAddr = "localhost:6379"
+		}
+		log.Printf("Creating Redis worker queue for address: %s", redisAddr)
+		return NewRedisWorkerQueue(redisAddr)
+	}
+
+	if strings.HasPrefix(queueURL, "memory://") {
+		log.Printf("Creating in-memory worker queue")
+		return NewInMemoryWorkerQueue()
+	}
+
+	log.Printf("Unsupported queue URL: %s, falling back to in-memory", queueURL)
+	return NewInMemoryWorkerQueue()
+}
+
 // InMemoryWorkerQueue implements WorkerQueue for in-memory communication.
 // In production, this would be replaced with Redis, RabbitMQ, etc.
 type InMemoryWorkerQueue struct {
@@ -25,21 +49,6 @@ type InMemoryWorkerQueue struct {
 	resultsChan   chan shared.Result
 	httpClient    *http.Client
 	closed        bool
-}
-
-// NewWorkerQueue creates a new worker queue based on the queue URL.
-func NewWorkerQueue(queueURL string) WorkerQueue {
-	if strings.HasPrefix(queueURL, "memory://") {
-		return NewInMemoryWorkerQueue()
-	}
-
-	// Future: Redis, RabbitMQ implementations
-	// if strings.HasPrefix(queueURL, "redis://") {
-	//     return NewRedisWorkerQueue(queueURL)
-	// }
-
-	log.Printf("Unsupported queue URL: %s, falling back to in-memory", queueURL)
-	return NewInMemoryWorkerQueue()
 }
 
 // NewInMemoryWorkerQueue creates a new in-memory worker queue.
@@ -133,20 +142,3 @@ func (q *InMemoryWorkerQueue) simulateJobsFromController() {
 		time.Sleep(5 * time.Second) // Simulate job arrival interval
 	}
 }
-
-// Note: In production, you would implement additional queue types:
-
-// RedisWorkerQueue for Redis-based queuing
-// type RedisWorkerQueue struct {
-//     client *redis.Client
-//     jobsKey string
-//     resultsKey string
-// }
-
-// RabbitMQWorkerQueue for RabbitMQ-based queuing
-// type RabbitMQWorkerQueue struct {
-//     conn *amqp.Connection
-//     channel *amqp.Channel
-//     jobsQueue string
-//     resultsExchange string
-// }
