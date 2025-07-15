@@ -4,7 +4,7 @@ go 1.24.4
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/nibbabob/azlo-validator-shared v1.0.0
+	github.com/nibbabob/azlo-validator-shared v0.0.0-20250715145131-2a3b61b56e91
 )
 
 require (

@@ -6,8 +6,8 @@ github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWo
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
 github.com/go-redis/redis/v8 v8.11.5 h1:AcZZR7igkdvfVmQTPnu9WE37LRrO/YrBH5zWyjDC0oI=
 github.com/go-redis/redis/v8 v8.11.5/go.mod h1:gREzHqY1hg6oD9ngVRbLStwAWKhA0FEgq8Jd4h5lpwo=
-github.com/nibbabob/azlo-validator-shared v1.0.0 h1:+Ob1+lbDH6WG9AJmCkWE5WaRqJpssAjBW5xbmn8BouU=
-github.com/nibbabob/azlo-validator-shared v1.0.0/go.mod h1:60GVj19iC++zsRCvcv5NERrzTSzBzm5MjYmVQLG65Mc=
+github.com/nibbabob/azlo-validator-shared v0.0.0-20250715145131-2a3b61b56e91 h1:5NHhPTPJB/vIjcWAOHGLpqffbVzSdBT/nigq3wG7IQk=
+github.com/nibbabob/azlo-validator-shared v0.0.0-20250715145131-2a3b61b56e91/go.mod h1:60GVj19iC++zsRCvcv5NERrzTSzBzm5MjYmVQLG65Mc=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
 github.com/onsi/ginkgo v1.16.5 h1:8xi0RTUf59SOSfEtZMvwTvXYMzG4gV23XVHOZiXNtnE=

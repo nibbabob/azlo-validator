@@ -1,3 +1,4 @@
+// File: worker/main_enhanced.go
 package main
 
 import (
@@ -12,25 +13,48 @@ import (
 	shared "github.com/nibbabob/azlo-validator-shared"
 )
 
+func getEnv(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
+}
+
+func getEnvInt(key string, defaultValue int) int {
+	if value, exists := os.LookupEnv(key); exists {
+		// Try to convert the string to an integer
+		intValue, err := strconv.Atoi(value)
+		if err == nil {
+			return intValue
+		}
+		// If conversion fails, return the default value
+	}
+	return defaultValue
+}
+
 func main() {
 	// Get worker configuration from environment variables
 	workerID := getEnv("WORKER_ID", "worker-1")
 	maxConcurrency := getEnvInt("MAX_CONCURRENCY", 10)
-	queueType := getEnv("QUEUE_TYPE", "memory") // "memory" or "redis"
+	queueType := getEnv("QUEUE_TYPE", "memory")
 	redisAddr := getEnv("REDIS_ADDR", "localhost:6379")
+	abuseIPDBKey := getEnv("ABUSEIPDB_API_KEY", "")
 
-	log.Printf("Starting worker %s with max concurrency: %d", workerID, maxConcurrency)
+	if abuseIPDBKey == "" {
+		log.Fatal("ABUSEIPDB_API_KEY environment variable is required")
+	}
+
+	log.Printf("Starting enhanced worker %s with max concurrency: %d", workerID, maxConcurrency)
 	log.Printf("Queue type: %s", queueType)
+	log.Printf("AbuseIPDB integration enabled")
 
-	// Initialize the queue connection based on configuration
+	// Initialize the queue connection
 	var queueURL string
 	switch queueType {
 	case "redis":
 		queueURL = "redis://" + redisAddr
-		log.Printf("Connecting to Redis at %s", redisAddr)
 	case "memory":
 		queueURL = "memory://localhost"
-		log.Printf("Using in-memory queue (for testing)")
 	default:
 		log.Printf("Unknown queue type '%s', defaulting to memory", queueType)
 		queueURL = "memory://localhost"
@@ -39,11 +63,11 @@ func main() {
 	queue := NewWorkerQueue(queueURL)
 	defer queue.Close()
 
-	// Create validator instance
-	validator := shared.NewValidator()
+	// Create enhanced validator instance with AbuseIPDB
+	validator := shared.NewEnhancedValidator(abuseIPDBKey)
 
-	// Create job processor
-	processor := NewJobProcessor(workerID, validator, queue, maxConcurrency)
+	// Create enhanced job processor
+	processor := NewEnhancedJobProcessor(workerID, validator, queue, maxConcurrency)
 
 	// Create context for graceful shutdown
 	ctx, cancel := context.WithCancel(context.Background())
@@ -61,7 +85,7 @@ func main() {
 			select {
 			case <-ticker.C:
 				stats := processor.GetStats()
-				log.Printf("Worker stats: %+v", stats)
+				log.Printf("Enhanced worker stats: %+v", stats)
 			case <-ctx.Done():
 				return
 			}
@@ -73,28 +97,10 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Printf("Worker %s shutting down...", workerID)
+	log.Printf("Enhanced Worker %s shutting down...", workerID)
 	cancel()
 
 	// Give some time for graceful shutdown
 	time.Sleep(5 * time.Second)
-	log.Printf("Worker %s exited", workerID)
-}
-
-// getEnv gets an environment variable with a default value.
-func getEnv(key, defaultValue string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	return defaultValue
-}
-
-// getEnvInt gets an environment variable as an integer with a default value.
-func getEnvInt(key string, defaultValue int) int {
-	if value, exists := os.LookupEnv(key); exists {
-		if intValue, err := strconv.Atoi(value); err == nil {
-			return intValue
-		}
-	}
-	return defaultValue
+	log.Printf("Enhanced Worker %s exited", workerID)
 }
