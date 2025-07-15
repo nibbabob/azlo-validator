@@ -44,11 +44,10 @@ func NewWorkerQueue(queueURL string) WorkerQueue {
 // InMemoryWorkerQueue implements WorkerQueue for in-memory communication.
 // In production, this would be replaced with Redis, RabbitMQ, etc.
 type InMemoryWorkerQueue struct {
-	controllerURL string
-	jobsChan      chan shared.ValidationJob
-	resultsChan   chan shared.Result
-	httpClient    *http.Client
-	closed        bool
+	jobsChan    chan shared.ValidationJob
+	resultsChan chan shared.Result
+	httpClient  *http.Client
+	closed      bool
 }
 
 // NewInMemoryWorkerQueue creates a new in-memory worker queue.
